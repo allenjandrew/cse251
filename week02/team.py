@@ -91,7 +91,7 @@ if __name__ == '__main__':
     #        team_get_deck_id.py program once. You can have
     #        multiple decks if you need them
 
-    deck_id = 'vmog8j8tu4vy' # this id will be invalid after 2 weeks
+    deck_id = 'qk2hir4kldoa' # this id will be invalid after 2 weeks
 
     # Testing Code >>>>>
     deck = Deck(deck_id)
