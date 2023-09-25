@@ -78,9 +78,20 @@ def print_progress(list, data):
     print(('\b\b\b\b', '\b\b\b') [progress < 10], f"{progress:.0f}%", end='', flush=True)
 
 
+def get_names(dataset, group):
+    names = []
+    threads = []
+    for item in dataset[group]:
+        threads.append(Request_thread(item))
+    for t in threads: t.start()
+    for t in threads: t.join()
+    for t in threads: names.append(t.data['name'])
+    print(group.capitalize() + ' loaded')
+    return names
+
 def main():
     log = Log(show_terminal=True)
-    log.start_timer('Starting to retrieve data from the server')
+    log.start_timer('Starting to retrieve data from the server\n')
 
     # TODO Retrieve Top API urls
     t1 = Request_thread(TOP_API_URL)
@@ -95,48 +106,11 @@ def main():
     # print(t2.sc)
     # print(t2.data)
 
-    char_names = []
-    print('\nLoading characters:   0%', end='')
-    for item in data['characters']:
-        t3 = Request_thread(item)
-        t3.start(); t3.join()
-        # print(type(item))
-        # print(t3.data)
-        char_names.append(t3.data['name'])
-        print_progress(char_names, data['characters'])
-
-    plan_names = []
-    print('\nLoading planets:   0%', end='')
-    for item in data['planets']:
-        t4 = Request_thread(item)
-        t4.start(); t4.join()
-        plan_names.append(t4.data['name'])
-        print_progress(plan_names, data['planets'])
-
-    ship_names = []
-    print('\nLoading starships:   0%', end='')
-    for item in data['starships']:
-        t5 = Request_thread(item)
-        t5.start(); t5.join()
-        ship_names.append(t5.data['name'])
-        print_progress(ship_names, data['starships'])
-
-
-    vehc_names = []
-    print('\nLoading vehicles:   0%', end='')
-    for item in data['vehicles']:
-        t6 = Request_thread(item)
-        t6.start(); t6.join()
-        vehc_names.append(t6.data['name'])
-        print_progress(vehc_names, data['vehicles'])
-
-    spec_names = []
-    print('\nLoading species:   0%', end='')
-    for item in data['species']:
-        t7 = Request_thread(item)
-        t7.start(); t7.join()
-        spec_names.append(t7.data['name'])
-        print_progress(spec_names, data['species'])
+    char_names = get_names(data, 'characters')
+    plan_names = get_names(data, 'planets')
+    ship_names = get_names(data, 'starships')
+    vehc_names = get_names(data, 'vehicles')
+    spec_names = get_names(data, 'species')
 
     # TODO Display results
     print(f"\n\nTitle: {data['title']}\nDirector: {data['director']}\nProducer: {data['producer']}\nReleased: {data['release_date']}")
