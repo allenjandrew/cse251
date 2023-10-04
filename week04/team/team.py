@@ -26,7 +26,7 @@ from cse251 import *
 RETRIEVE_THREADS = 4        # Number of retrieve_threads
 NO_MORE_VALUES = 'No more'  # Special value to indicate no more items in the queue
 
-def retrieve_thread(shopper, log):  # TODO add arguments
+def retrieve_thread(sema_4, shopper, log):  # TODO add arguments
     """ Process values from the data_queue """
 
     while True:
@@ -34,6 +34,7 @@ def retrieve_thread(shopper, log):  # TODO add arguments
         # if shopper.empty():
         #     print('awkward')
         #     continue
+        sema_4.acquire()
 
         # TODO process the value retrieved from the queue
         url = shopper.get()
@@ -47,19 +48,21 @@ def retrieve_thread(shopper, log):  # TODO add arguments
             log.write(data["name"])
 
 
-def file_reader(shopper, log): # TODO add arguments
+def file_reader(sema_4, shopper, log): # TODO add arguments
     """ This thread reading the data file and places the values in the data_queue """
 
     # TODO Open the data file "urls.txt" and place items into a queue
     with open('urls.txt') as file:
         for line in file:
             shopper.put(line.strip())
+            sema_4.release()
 
     log.write('finished reading file')
 
     # TODO signal the retrieve threads one more time that there are "no more values"
     for _ in range(RETRIEVE_THREADS):
         shopper.put('finished')
+        sema_4.release()
 
 
 def main():
@@ -71,14 +74,15 @@ def main():
     shopper = queue.Queue()
 
     # TODO create semaphore (if needed)
+    sema_4 = threading.Semaphore(0)
 
     # TODO create the threads. 1 filereader() and RETRIEVE_THREADS retrieve_thread()s
     # Pass any arguments to these thread need to do their job
     threads = []
 
     for _ in range(RETRIEVE_THREADS):
-        threads.append(threading.Thread(target=retrieve_thread, args=(shopper,log,)))
-    threads.append(threading.Thread(target=file_reader, args=(shopper,log,)))
+        threads.append(threading.Thread(target=retrieve_thread, args=(sema_4, shopper, log,)))
+    threads.append(threading.Thread(target=file_reader, args=(sema_4, shopper, log,)))
 
     log.start_timer()
 
