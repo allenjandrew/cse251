@@ -45,9 +45,7 @@ def is_prime(n: int) -> bool:
 def read_thread(filename, shopper):
     with open(filename, "r") as f:
         for line in f:
-            stripped = line.strip()
-            num = int(stripped)
-            shopper.put(num)
+            shopper.put(int(line.strip()))
     for _ in range(PRIME_PROCESS_COUNT):
         shopper.put("no more")
 
@@ -87,15 +85,7 @@ def main():
     processes = []
 
     # TODO create reading thread
-    processes.append(
-        mp.Process(
-            target=read_thread,
-            args=(
-                filename,
-                shopper,
-            ),
-        )
-    )
+    processes.append(mp.Process(target=read_thread, args=(filename, shopper)))
 
     # TODO create prime processes
     for _ in range(PRIME_PROCESS_COUNT):
