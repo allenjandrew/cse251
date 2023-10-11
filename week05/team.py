@@ -19,10 +19,11 @@ import multiprocessing as mp
 import random
 from os.path import exists
 
-#Include cse 251 common Python files
+# Include cse 251 common Python files
 from cse251 import *
 
 PRIME_PROCESS_COUNT = 5
+
 
 def is_prime(n: int) -> bool:
     """Primality test using 6k+-1 optimization.
@@ -33,7 +34,7 @@ def is_prime(n: int) -> bool:
     if n % 2 == 0 or n % 3 == 0:
         return False
     i = 5
-    while i ** 2 <= n:
+    while i**2 <= n:
         if n % i == 0 or n % (i + 2) == 0:
             return False
         i += 6
@@ -42,7 +43,7 @@ def is_prime(n: int) -> bool:
 
 # TODO create read_thread function
 def read_thread(filename, shopper):
-    with open(filename, 'r') as f:
+    with open(filename, "r") as f:
         for line in f:
             stripped = line.strip()
             num = int(stripped)
@@ -55,25 +56,26 @@ def read_thread(filename, shopper):
 def prime_process(shopper, primes):
     while True:
         num = shopper.get()
-        if num == 'no more':
+        if num == "no more":
             break
         if is_prime(num):
             primes.append(num)
 
 
 def create_data_txt(filename):
-    # only create if is doesn't exist 
+    # only create if it doesn't exist
     if not exists(filename):
-        with open(filename, 'w') as f:
+        with open(filename, "w") as f:
             for _ in range(1000):
-                f.write(str(random.randint(10000000000, 100000000000000)) + '\n')
+                f.write(str(random.randint(10000000000, 100000000000000)) + "\n")
+                # f.write(str(random.randint(1, 10000)) + "\n")
 
 
 def main():
-    """ Main function """
+    """Main function"""
 
     # Create the data file for this demo if it does not already exist.
-    filename = 'data.txt'
+    filename = "data.txt"
     create_data_txt(filename)
 
     log = Log(show_terminal=True)
@@ -81,11 +83,19 @@ def main():
 
     # TODO Create shared data structures
     shopper = mp.Queue()
-    primes = []
+    primes = mp.Manager().list([])
     processes = []
 
     # TODO create reading thread
-    processes.append(mp.Process(target=read_thread, args=(filename, shopper,)))
+    processes.append(
+        mp.Process(
+            target=read_thread,
+            args=(
+                filename,
+                shopper,
+            ),
+        )
+    )
 
     # TODO create prime processes
     for _ in range(PRIME_PROCESS_COUNT):
@@ -99,13 +109,13 @@ def main():
     for p in processes:
         p.join()
 
-    log.stop_timer(f'All primes have been found using {PRIME_PROCESS_COUNT} processes')
+    log.stop_timer(f"All primes have been found using {PRIME_PROCESS_COUNT} processes")
 
     # display the list of primes
-    print(f'There are {len(primes)} found:')
+    print(f"There are {len(primes)} found:")
     for prime in primes:
         print(prime)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
