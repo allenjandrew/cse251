@@ -1,0 +1,56 @@
+11:03:43| 291 cars have been created. = 3.52546283
+11:03:43| Factories      : 1
+11:03:43| Dealerships    : 1
+11:03:43| Run Time       : 3.5255
+11:03:43| Max queue size : 11
+11:03:43| Factory Stats  : [291]
+11:03:43| Dealer Stats   : [291]
+11:03:43| 
+11:03:46| 220 cars have been created. = 2.64026921
+11:03:46| Factories      : 1
+11:03:46| Dealerships    : 2
+11:03:46| Run Time       : 2.6403
+11:03:46| Max queue size : 3
+11:03:46| Factory Stats  : [220]
+11:03:46| Dealer Stats   : [112, 108]
+11:03:46| 
+11:03:52| 491 cars have been created. = 5.55633404
+11:03:52| Factories      : 2
+11:03:52| Dealerships    : 1
+11:03:52| Run Time       : 5.5563
+11:03:52| Max queue size : 10
+11:03:52| Factory Stats  : [274, 217]
+11:03:52| Dealer Stats   : [491]
+11:03:52| 
+11:03:55| 539 cars have been created. = 3.46555213
+11:03:55| Factories      : 2
+11:03:55| Dealerships    : 2
+11:03:55| Run Time       : 3.4656
+11:03:55| Max queue size : 9
+11:03:55| Factory Stats  : [262, 277]
+11:03:55| Dealer Stats   : [266, 273]
+11:03:55| 
+11:03:59| 534 cars have been created. = 3.48758017
+11:03:59| Factories      : 2
+11:03:59| Dealerships    : 5
+11:03:59| Run Time       : 3.4876
+11:03:59| Max queue size : 6
+11:03:59| Factory Stats  : [283, 251]
+11:03:59| Dealer Stats   : [102, 115, 100, 110, 107]
+11:03:59| 
+11:04:07| 1319 cars have been created. = 8.33404062
+11:04:07| Factories      : 5
+11:04:07| Dealerships    : 2
+11:04:07| Run Time       : 8.3340
+11:04:07| Max queue size : 10
+11:04:07| Factory Stats  : [255, 275, 292, 214, 283]
+11:04:07| Dealer Stats   : [678, 641]
+11:04:07| 
+11:04:11| 2553 cars have been created. = 3.69566846
+11:04:11| Factories      : 10
+11:04:11| Dealerships    : 10
+11:04:11| Run Time       : 3.6957
+11:04:11| Max queue size : 10
+11:04:11| Factory Stats  : [243, 275, 258, 268, 267, 239, 285, 216, 295, 207]
+11:04:11| Dealer Stats   : [262, 253, 234, 243, 260, 260, 262, 257, 263, 259]
+11:04:11| 
