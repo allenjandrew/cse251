@@ -185,6 +185,7 @@ class Marble_Creator(mp.Process):
             self.mario.send(random.choice(self.colors))
             time.sleep(self.delay)
         self.mario.send("no more marbles")
+        self.mario.close()
 
 
 class Bagger(mp.Process):
@@ -219,6 +220,8 @@ class Bagger(mp.Process):
                 bag = Bag()
                 time.sleep(self.delay)
         self.mario.send("no more bags")
+        self.luigi.close()
+        self.mario.close()
 
 
 class Assembler(mp.Process):
@@ -259,6 +262,8 @@ class Assembler(mp.Process):
             self.mario.send(Gift(random.choice(self.marble_names), bag))
             time.sleep(self.delay)
         self.mario.send("no more gifts")
+        self.luigi.close()
+        self.mario.close()
 
 
 class Wrapper(mp.Process):
@@ -286,6 +291,7 @@ class Wrapper(mp.Process):
                 f.write(f"Created - {datetime.now().time()}: {str(gift)}\n")
                 self.counter.value += 1
                 time.sleep(self.delay)
+        self.luigi.close()
 
 
 def display_final_boxes(filename, log):
