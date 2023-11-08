@@ -85,34 +85,34 @@ class Philosopher(threading.Thread):
             time.sleep(random.randint(1, 3))
 
 
-def philosophize(phil_num, fork_a, fork_b, shopper_a, shopper_b):
-    start = True
-    meals_eaten = 0
-    while True:
-        think(phil_num, start)
-        start = False
+# def philosophize(phil_num, fork_a, fork_b, shopper_a, shopper_b):
+#     start = True
+#     meals_eaten = 0
+#     while True:
+#         think(phil_num, start)
+#         start = False
 
-        eat(fork_a, fork_b, shopper_a, shopper_b)
-        meals_eaten += 1
+#         eat(fork_a, fork_b, shopper_a, shopper_b)
+#         meals_eaten += 1
 
-    return meals_eaten
-
-
-def eat(fork_a, fork_b, shopper_a, shopper_b):
-    fork_a.acquire()
-    fork_b.acquire()
-    shopper_a.acquire()
-    time.sleep(random.randint(1, 3))
-    shopper_b.release()
-    fork_a.release()
-    fork_b.release()
+#     return meals_eaten
 
 
-def think(phil_num, start=False):
-    if start:
-        time.sleep(phil_num % 2)
-        return
-    time.sleep(random.randint(1, 3))
+# def eat(fork_a, fork_b, shopper_a, shopper_b):
+#     fork_a.acquire()
+#     fork_b.acquire()
+#     shopper_a.acquire()
+#     time.sleep(random.randint(1, 3))
+#     shopper_b.release()
+#     fork_a.release()
+#     fork_b.release()
+
+
+# def think(phil_num, start=False):
+#     if start:
+#         time.sleep(phil_num % 2)
+#         return
+#     time.sleep(random.randint(1, 3))
 
 
 def main():
