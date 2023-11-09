@@ -54,125 +54,141 @@ import time
 import threading
 import random
 
-PHILOSOPHERS = 5
-MAX_MEALS_EATEN = PHILOSOPHERS * 5
-TOTAL_MEALS_EATEN = 0
+PHILOSOPHERS = 12
+MAX_MEALS_EATEN = PHILOSOPHERS * 4
 
 
 class Philosopher(threading.Thread):
-    def __init__(self, id, forks, sema_4):
-        super.init(self)
-        self.id = id
-        self.forks = forks
-        self.meals_eaten = 0
-        self.sema_4 = sema_4
+    def __init__(self, id, names, forks, meals_eaten, meal_checker):
+        super().__init__()
+
+        # Pass all the arguments to self
+        self.id = id  # int
+        self.meals_eaten = meals_eaten  # array
+        self.meal_checker = meal_checker  # lock
+
+        self.name = names[
+            id % len(names)
+        ]  # string - gets a single name out of the array, based on id number
+        # We don't want duplicate philos. If this philo isn't the first with their name, add a modifier to it
+        if id >= len(names):
+            self.name += f" {int(id / len(names)) + 1}.0"
+
+        # Grab this philo's corresponding forks (see line 50). If this is the last philo, give them the first fork
+        if id >= len(forks) - 1:
+            self.fork1, self.fork2 = (
+                forks[id],
+                forks[0],
+            )  # Grabbing the locks from the forks array
+        else:
+            self.fork1, self.fork2 = (forks[id], forks[id + 1])
 
     def run(self):
-        start = True
-        while TOTAL_MEALS_EATEN < MAX_MEALS_EATEN:
-            self.think(start)
-            start = False
+        # First off, let's make sure we haven't eaten all the meals up yet. To do that, we acquire the meal_checker lock. The point of this lock is to make sure only one philo is viewing the meals_eaten array at a time
+        self.meal_checker.acquire()
+
+        while (
+            sum(self.meals_eaten) < MAX_MEALS_EATEN
+        ):  # This check always happens when we have the lock
+            # Once we've verified that the sum of all meals eaten by philos is less than the max number of meals to eat, we update this philo's meal count so all other philos know. Then we release the lock
+            # Optimized code might have this '+= 1' statement inside the eat() method. That would be nice. I have it here because I don't want some other philo trying to check the meals_eaten total without accounting for the fact that this philo is already about to eat
+            self.meals_eaten[self.id] += 1
+            self.meal_checker.release()
+
+            # First, we think for a bit
+            self.think()
+
+            # Then, we eat for a bit
             self.eat()
 
+            # We need to acquire the lock again so the while loop can check meals_eaten again!
+            self.meal_checker.acquire()
+
+        # Make sure to release the lock once you exit the while loop!!
+        self.meal_checker.release()
+
+        # We don't need to get the lock this time because we're just viewing meals_eaten, not updating it
+        print(self.meals_eaten[self.id])
+
     def eat(self):
-        TOTAL_MEALS_EATEN += 1
-        self.meals_eaten += 1
+        # Grab both the forks. This code is imperfect because we must grab the first lock before we can look for the other. Optimized code might have us looking for both at the same time.
+        self.fork1.acquire()
+        self.fork2.acquire()
 
-    def think(self, start=False):
-        if start:
-            time.sleep(self.id % 2)
+        # We have both locks - let's dig in!!
+        print(f"{self.id} - {self.name} started eating")
+
+        # Technically, the instructions don't say we have to sleep a random amount of time - just that it has to be between 1 and 3 seconds
+        time.sleep(1)  # random.randint(1, 3))
+
+        # We've finished eating. Yum!
+        print(
+            f"{self.id} - {self.name} finished their {ordinal(self.meals_eaten[self.id])} meal"
+        )
+
+        # Let go of both forks so our coleagues can eat
+        self.fork1.release()
+        self.fork2.release()
+
+    def think(self):
+        # Start thinking
+        print(f"{self.id} - {self.name} started thinking")
+
+        # Wait a second, unless this is the first time we're thinking. If so, half of our philos will go straight to eating instead. This allows us to start out alternating thinking and eating
+        if self.meals_eaten[self.id] == 0:
+            time.sleep(
+                self.id % 2
+            )  # For half of philos, this will be 0; for the other half it'll be 1
         else:
-            time.sleep(random.randint(1, 3))
+            time.sleep(1)  # random.randint(1, 3))
+
+        # Great job. Let's go back to eating now!
+        print(f"{self.id} - {self.name} thought up a new philosophy")
 
 
-# def philosophize(phil_num, fork_a, fork_b, shopper_a, shopper_b):
-#     start = True
-#     meals_eaten = 0
-#     while True:
-#         think(phil_num, start)
-#         start = False
-
-#         eat(fork_a, fork_b, shopper_a, shopper_b)
-#         meals_eaten += 1
-
-#     return meals_eaten
-
-
-# def eat(fork_a, fork_b, shopper_a, shopper_b):
-#     fork_a.acquire()
-#     fork_b.acquire()
-#     shopper_a.acquire()
-#     time.sleep(random.randint(1, 3))
-#     shopper_b.release()
-#     fork_a.release()
-#     fork_b.release()
-
-
-# def think(phil_num, start=False):
-#     if start:
-#         time.sleep(phil_num % 2)
-#         return
-#     time.sleep(random.randint(1, 3))
+# This is a quick little lambda function I found online to get an ordinal string from any int
+ordinal = lambda n: str(n) + {1: "st", 2: "nd", 3: "rd"}.get(
+    10 <= n % 100 <= 20 and n or n % 10, "th"
+)
 
 
 def main():
-    # TODO - create the forks
-    forks = []
-    for _ in range(PHILOSOPHERS):
-        forks.append(threading.Lock())
+    # TODO - create the forks - same number of forks as philos
+    forks = [threading.Lock() for _ in range(PHILOSOPHERS)]
 
-    shopper_remaining = threading.Semaphore(MAX_MEALS_EATEN)
-    shopper_eaten = threading.Semaphore(MAX_MEALS_EATEN)
-    for _ in MAX_MEALS_EATEN:
-        shopper_eaten.acquire()
+    # Create a lock for checking if we need to eat more meals
+    meal_checker = threading.Lock()
 
-    philos = []
-    for i in range(PHILOSOPHERS):
-        philos.append(Philosopher(i, forks))
+    # Let's give these philos some names, just for fun
+    names = ["DesCartes", "Socrates", "Locke", "Plato", "St. Thomas Aquinus"]
 
-    # TODO - create PHILOSOPHERS philosophers
-    # philos = []
-    # philos.append(
-    #     threading.Thread(
-    #         target=philosophize,
-    #         args=(1, fork_1, fork_2, shopper_remaining, shopper_eaten),
-    #     )
-    # )
-    # philos.append(
-    #     threading.Thread(
-    #         target=philosophize,
-    #         args=(2, fork_2, fork_3, shopper_remaining, shopper_eaten),
-    #     )
-    # )
-    # philos.append(
-    #     threading.Thread(
-    #         target=philosophize,
-    #         args=(3, fork_3, fork_4, shopper_remaining, shopper_eaten),
-    #     )
-    # )
-    # philos.append(
-    #     threading.Thread(
-    #         target=philosophize,
-    #         args=(4, fork_4, fork_5, shopper_remaining, shopper_eaten),
-    #     )
-    # )
-    # philos.append(
-    #     threading.Thread(
-    #         target=philosophize,
-    #         args=(5, fork_5, fork_1, shopper_remaining, shopper_eaten),
-    #     )
-    # )
+    # This is an array to keep track of each philo's eating habits
+    meals_eaten = [0 for _ in range(PHILOSOPHERS)]
+
+    # Create the philos, and pass in id=i, names array, forks array, meals_eaten array, and meal_checker lock
+    philos = [
+        Philosopher(i, names, forks, meals_eaten, meal_checker)
+        for i in range(PHILOSOPHERS)
+    ]
 
     # TODO - Start them eating and thinking
     for philo in philos:
         philo.start()
-
     for philo in philos:
         philo.join()
 
     # TODO - Display how many times each philosopher ate
-
-    pass
+    print()
+    print(f"Philosophers and # of meals eaten:")
+    for i in range(PHILOSOPHERS):
+        print(
+            f"{i}) " if i < 10 else f"{i})",
+            f"{philos[i].name:<24} ----  {meals_eaten[i]} meals eaten",
+        )
+    # print(meals_eaten)  # This just prints the array itself
+    # Print out the total number of meals eaten
+    print(f"\nTotal: {sum(meals_eaten)} out of {MAX_MEALS_EATEN} meals eaten")
+    print()
 
 
 if __name__ == "__main__":
