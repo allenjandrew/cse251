@@ -54,8 +54,8 @@ import time
 import threading
 import random
 
-PHILOSOPHERS = 12
-MAX_MEALS_EATEN = PHILOSOPHERS * 4
+PHILOSOPHERS = 1000
+MAX_MEALS_EATEN = PHILOSOPHERS * 20
 
 
 class Philosopher(threading.Thread):
@@ -160,7 +160,20 @@ def main():
     meal_checker = threading.Lock()
 
     # Let's give these philos some names, just for fun
-    names = ["DesCartes", "Socrates", "Locke", "Plato", "St. Thomas Aquinus"]
+    names = [
+        "DesCartes",
+        "Socrates",
+        "Locke",
+        "Plato",
+        "St. Thomas Aquinus",
+        "Aristotle",
+        "Demosthenes",
+        "Hippocrates",
+        "Freud",
+        "Confucius",
+        "Doofenshmirtz",
+        "Eric Gee",
+    ]
 
     # This is an array to keep track of each philo's eating habits
     meals_eaten = [0 for _ in range(PHILOSOPHERS)]
@@ -182,7 +195,7 @@ def main():
     print(f"Philosophers and # of meals eaten:")
     for i in range(PHILOSOPHERS):
         print(
-            f"{i}) " if i < 10 else f"{i})",
+            f"{i})  " if i < 10 else f"{i}) " if i < 100 else f"{i})",
             f"{philos[i].name:<24} ----  {meals_eaten[i]} meals eaten",
         )
     # print(meals_eaten)  # This just prints the array itself
