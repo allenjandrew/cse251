@@ -1,0 +1,22 @@
+10:16:04| ****************************************
+10:16:04| Part 2
+10:16:04| 
+10:16:04| File: verysmall.bmp
+10:16:04| Number of drawing commands = 82
+10:16:04| Number of threads created  = 3
+10:16:08| 
+10:16:08| File: verysmall-loops.bmp
+10:16:08| Number of drawing commands = 172
+10:16:08| Number of threads created  = 3
+10:16:11| 
+10:16:11| File: small.bmp
+10:16:11| Number of drawing commands = 1092
+10:16:11| Number of threads created  = 3
+10:16:14| 
+10:16:14| File: small-loops.bmp
+10:16:14| Number of drawing commands = 1092
+10:16:14| Number of threads created  = 3
+10:16:15| 
+10:16:15| File: small-odd.bmp
+10:16:15| Number of drawing commands = 1092
+10:16:15| Number of threads created  = 3
