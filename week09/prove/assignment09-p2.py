@@ -82,25 +82,23 @@ def get_color():
     return color
 
 
-def solve_find_end(maze, visited=None, pos=None, color=None):
+def solve_find_end(maze, pos=None, color=None):
     """finds the end position using threads.  Nothing is returned"""
     # When one of the threads finds the end position, stop all of them
     global stop
     global thread_count
 
-    if not visited:
+    if not pos:
         pos = maze.get_start_pos()
-        visited = []
         stop = False
         color = get_color()
 
-    if pos in visited:
-        return
-
     row, col = pos
 
+    if not maze.can_move_here(row, col):
+        return
+
     maze.move(row, col, color)
-    visited.append(pos)
 
     if maze.at_end(row, col):
         stop = True
@@ -115,19 +113,19 @@ def solve_find_end(maze, visited=None, pos=None, color=None):
         return
 
     for i in range(1, len(poss_moves)):
-        if poss_moves[i] in visited:
-            continue
-        threads.append(
-            threading.Thread(
-                target=solve_find_end, args=(maze, visited, poss_moves[i], get_color())
+        if maze.can_move_here(poss_moves[i][0], poss_moves[i][1]):
+            threads.append(
+                threading.Thread(
+                    target=solve_find_end,
+                    args=(maze, poss_moves[i], get_color()),
+                )
             )
-        )
-        thread_count += 1
+            thread_count += 1
 
     for t in threads:
         t.start()
 
-    solve_find_end(maze, visited, poss_moves[0], color)
+    solve_find_end(maze, poss_moves[0], color)
 
     # for t in threads:
     #     t.join()
