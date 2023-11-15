@@ -176,6 +176,8 @@ def find_ends(log):
         ("small-open.bmp", False),
         ("large.bmp", False),
         ("large-loops.bmp", False),
+        ("large3.bmp", False),
+        ("large4.bmp", False),
     )
 
     log.write("*" * 40)
