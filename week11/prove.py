@@ -40,7 +40,7 @@ def guest_partying(id, count):
     time.sleep(random.uniform(0, 1))
 
 
-def cleaner():
+def cleaner(id, start_time, view_lock, room_lock, cleaned_count, guest_count):
     """
     do the following for TIME seconds
         cleaner will wait to try to clean the room (cleaner_waiting())
@@ -49,10 +49,25 @@ def cleaner():
         Take some time cleaning (cleaner_cleaning())
         display message STOPPING_CLEANING_MESSAGE
     """
-    pass
+    while time.time() < start_time + TIME:
+        cleaner_waiting()
+
+        view_lock.acquire()
+        if guest_count.value != 0:
+            view_lock.release()
+            continue
+        room_lock.acquire()
+
+        print(STARTING_CLEANING_MESSAGE)
+        cleaner_cleaning(id)
+        print(STOPPING_CLEANING_MESSAGE)
+        cleaned_count.value += 1
+
+        room_lock.release()
+        view_lock.release()
 
 
-def guest():
+def guest(id, start_time, view_lock, room_lock, party_count, guest_count):
     """
     do the following for TIME seconds
         guest will wait to try to get access to the room (guest_waiting())
@@ -61,7 +76,26 @@ def guest():
         Take some time partying (call guest_partying())
         display message STOPPING_PARTY_MESSAGE if the guest is the last one leaving in the room
     """
-    pass
+    while time.time() < start_time + TIME:
+        guest_waiting()
+
+        view_lock.acquire()
+        if guest_count.value == 0:
+            room_lock.acquire()
+            print(STARTING_PARTY_MESSAGE)
+            party_count.value += 1
+        guest_count.value += 1
+        current_guest_count = guest_count.value
+        view_lock.release()
+
+        guest_partying(id, current_guest_count)
+
+        view_lock.acquire()
+        if guest_count.value == 1:
+            print(STOPPING_PARTY_MESSAGE)
+            room_lock.release()
+        guest_count.value -= 1
+        view_lock.release()
 
 
 def main():
@@ -70,9 +104,36 @@ def main():
 
     # TODO - add any variables, data structures, processes you need
     # TODO - add any arguments to cleaner() and guest() that you need
+    view_lock = mp.Lock()
+    room_lock = mp.Lock()
+    cleaned_count = mp.Value("i", 0)
+    party_count = mp.Value("i", 0)
+    guest_count = mp.Value("i", 0)
+
+    processes = [
+        mp.Process(
+            target=cleaner,
+            args=(i + 1, start_time, view_lock, room_lock, cleaned_count, guest_count),
+        )
+        for i in range(CLEANING_STAFF)
+    ] + [
+        mp.Process(
+            target=guest,
+            args=(j + 1, start_time, view_lock, room_lock, party_count, guest_count),
+        )
+        for j in range(HOTEL_GUESTS)
+    ]
+
+    for p in processes:
+        p.start()
+
+    for p in processes:
+        p.join()
 
     # Results
-    print(f"Room was cleaned {cleaned_count} times, there were {party_count} parties")
+    print(
+        f"Room was cleaned {cleaned_count.value} times, there were {party_count.value} parties"
+    )
 
 
 if __name__ == "__main__":
