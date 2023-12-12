@@ -43,12 +43,12 @@ You will lose 10% if you don't detail your part 1 and part 2 code below
 
 Describe how to speed up part 1
 
-<Add your comments here>
+    The basic flow of part 1 is to get the details for a family and add it to the tree, then grab details for the children and add them to the tree, then grab details for the parents and add them to the tree and **call the depth_fs_pedigree() function recursively** (first for the dad's family, then mom's). I create threads for each server request and for each recursive function call. The biggest issue I had while writing this program is that my computer wasn't hosting the server correctly (or something) so I was getting errors relating to 'connection reset by peer'. I implemented a semaphore that allows for five families to be processed at a time, and that helped reduce how often that error would show up when I ran my code. I can only hope that my code will work with the grader's server.
 
 
 Describe how to speed up part 2
 
-<Add your comments here>
+    To do part 2, I implemented a queue where I put families needing to be processed. One by one I take them off the queue and process them the same way as in part 1. Again, every time the function is run it uses threading. Instead of using recursion to loop through, the function uses while loops that make sure everything runs correctly until the whole tree is processed.
 
 
 Extra (Optional) 10% Bonus to speed up part 3
